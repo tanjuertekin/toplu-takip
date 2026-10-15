@@ -1274,10 +1274,7 @@
         }
 
         setInterval(canliFiyatGuncelleucu, 3000);
-        
-    </script>
-    <script>
-    // Google E-Tabloya anlık veri gönderen fonksiyon (Örnek: index5m.html için bot: "5m" yapılır)
+            // Google E-Tabloya anlık veri gönderen fonksiyon (Örnek: index5m.html için bot: "5m" yapılır)
 function tabloyaGonder() {
     try {
         let acik = document.getElementById('statAcikSayisi') ? document.getElementById('statAcikSayisi').innerText : (document.getElementById('statAcikSayi') ? document.getElementById('statAcikSayi').innerText : 0);
@@ -1304,6 +1301,9 @@ function tabloyaGonder() {
 
 // Her 10 saniyede bir tablonu otomatik günceller
 setInterval(tabloyaGonder, 10000);
-            </script>
+
+    </script>
+    
+            
 </body>
 </html>
