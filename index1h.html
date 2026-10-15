@@ -1,0 +1,847 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Kripto Canlı İşlem Simülasyon Paneli (1h)</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1450px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        h2 { 
+            color: #00ffcc; 
+            text-align: center; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            font-size: 20px;
+            word-break: break-word;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #252525;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 4px solid #00ffcc;
+        }
+        .stat-title { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; }
+        .stat-value { font-size: 20px; font-weight: bold; color: #fff; margin-top: 5px; }
+
+        .control-panel {
+            background: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 140px;
+        }
+        .button-group { flex: 2; min-width: 220px; }
+        label { font-size: 13px; color: #00ffcc; font-weight: bold; }
+        select, button {
+            background: #181818;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        select { cursor: pointer; }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #00ffcc;
+            cursor: pointer;
+            height: 41px;
+        }
+        .checkbox-label input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        button {
+            background: #00ffcc;
+            color: #121212;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 41px;
+        }
+        button:hover { background: #00b38f; }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .section-title h3 { margin: 0; color: #00ffcc; font-size: 16px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            background: #181818;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+        }
+        th { background-color: #252525; color: #00ffcc; font-weight: bold; }
+        tr:hover { background-color: #222; }
+        
+        .badge-long { color: #00ff00; font-weight: bold; background: rgba(0,255,0,0.1); padding: 3px 6px; border-radius: 4px; }
+        .badge-short { color: #ff4444; font-weight: bold; background: rgba(255,68,68,0.1); padding: 3px 6px; border-radius: 4px; }
+        .badge-durum-aktif { color: #ffaa00; background: rgba(255,170,0,0.1); padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+        .badge-durum-tsl { color: #00ff00; background: rgba(0,255,0,0.1); padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+        .badge-durum-tp { color: #00ffcc; background: rgba(0,255,204,0.1); padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+
+        .parite-link {
+            color: #00ffcc;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .parite-link:hover { color: #fff; }
+
+        .log-box {
+            white-space: pre-wrap;
+            background: #181818;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #00ffcc;
+            margin-top: 15px;
+            font-size: 12px;
+            max-height: 120px;
+            overflow-y: auto;
+            color: #aaa;
+        }
+        .btn-Danger-Small {
+            background: #ff4444 !important;
+            color: #fff !important;
+            padding: 4px 8px !important;
+            height: auto !important;
+            font-size: 11px !important;
+        }
+        .btn-Danger-Small:hover { background: #cc0000 !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kripto Canlı İşlem Simülasyon Paneli (1h)</h2>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-title">Açık İşlem Sayısı</div>
+            <div class="stat-value" id="statAcikSayisi">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Toplam Kapatılan</div>
+            <div class="stat-value" id="statKapatilanSayisi">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Toplam Başarı / PnL (Komisyon Düşüldü)</div>
+            <div class="stat-value" id="statToplamPnl">%0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Kazanma Oranı (Win Rate)</div>
+            <div class="stat-value" id="statWinRate">%0</div>
+        </div>
+    </div>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label>Zaman Dilimi (TF):</label>
+            <select id="timeframeSelect">
+                <option value="5m">3 Dakika (3m)</option>
+				<option value="5m">5 Dakika (5m)</option>
+                <option value="15m">15 Dakika (15m)</option>
+                <option value="30m">30 Dakika (30m)</option>
+                <option value="1h" selected>1 Saat (1h)</option>
+                <option value="4h">4 Saat (4h)</option>
+                <option value="1d">1 Gün (1d)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Tarama Aralığı:</label>
+            <select id="intervalSelect" onchange="otomatikYenilemeAyarla()">
+                <option value="0">Kapalı (Manuel)</option>
+				<option value="3">3 Dakika</option>
+                <option value="5" selected>5 Dakika (Otomatik)</option>
+                <option value="15">15 Dakika</option>
+                <option value="30">30 Dakika</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Minimum Skor (Liste):</label>
+            <select id="minScoreSelect">
+                <option value="10">%10 ve Üzeri</option>
+                <option value="20">%20 ve Üzeri</option>
+                <option value="30">%30 ve Üzeri</option>
+                <option value="40">%40 ve Üzeri</option>
+                <option value="50" selected>%50 ve Üzeri</option>
+                <option value="60">%60 ve Üzeri</option>
+                <option value="70">%70 ve Üzeri</option>
+                <option value="80">%80 ve Üzeri</option>
+                <option value="90">%90 ve Üzeri</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>İşlem Açma Eşiği:</label>
+            <select id="execScoreSelect">
+                <option value="50">%50 ve Üzeri</option>
+                <option value="60">%60 ve Üzeri</option>
+                <option value="70">%70 ve Üzeri</option>
+                <option value="80" selected>%80 ve Üzeri</option>
+                <option value="90">%90 ve Üzeri</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>TSL Uzaklığı:</label>
+            <select id="tslDistanceSelect">
+                <option value="0.5">%0.5</option>
+                <option value="1.0">%1.0</option>
+                <option value="1.5" selected>%1.5</option>
+                <option value="2.0">%2.0</option>
+                <option value="2.5">%2.5</option>
+                <option value="3.0">%3.0</option>
+            </select>
+        </div>
+
+        <div class="control-group" style="min-width: 130px;">
+            <label>&nbsp;</label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="partialTpCheckbox" checked> Partial TP (%3)
+            </label>
+        </div>
+
+        <div class="control-group button-group">
+            <label>&nbsp;</label>
+            <button onclick="taramayiBaslat()">Tara ve Canlı İşlemlere Aktar (1h)</button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <h3>Güncel Sinyal Taraması (1h)</h3>
+        <span id="sonGuncelleme" style="font-size: 13px; color: #888;">Son Güncelleme: Bekleniyor...</span>
+    </div>
+    <table id="signalTable">
+        <thead>
+            <tr>
+                <th>Parite</th>
+                <th>Yön</th>
+                <th>Skor %</th>
+                <th>ADX</th>
+                <th>StochRSI</th>
+                <th>Giriş</th>
+                <th>Stop</th>
+                <th>Durum / İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr><td colspan="8" style="color: #888;">Henüz tarama yapılmadı.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">
+        <h3>Canlı Takip Edilen Açık İşlemler (1h)</h3>
+        <button onclick="tumIslemleriSifirla()" class="btn-Danger-Small" style="width: auto;">Tüm Geçmişi Sıfırla</button>
+    </div>
+    <table id="activeTradesTable">
+        <thead>
+            <tr>
+                <th>Parite</th>
+                <th>Yön</th>
+                <th>Giriş Fiyatı / Tarihi</th>
+                <th>Anlık Fiyat</th>
+                <th>TP Noktası</th>
+                <th>Stop Loss</th>
+                <th id="thAnlikPnl">Anlık PnL % (Toplam: %0.00)</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="activeTradesBody">
+            <tr><td colspan="9" style="color: #888;">Aktif açık işlem bulunmuyor.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">
+        <h3>Kapatılan İşlemler Geçmişi (1h)</h3>
+    </div>
+    <table id="closedTradesTable">
+        <thead>
+            <tr>
+                <th>Parite</th>
+                <th>Yön</th>
+                <th>Giriş Fiyatı</th>
+                <th>Çıkış Fiyatı</th>
+                <th>Sonuç</th>
+                <th>Kâr / Zarar %</th>
+                <th>Geçen Süre</th>
+                <th>Açılış Zamanı</th>
+                <th>Kapanış Zamanı</th>
+            </tr>
+        </thead>
+        <tbody id="closedTradesBody">
+            <tr><td colspan="9" style="color: #888;">Henüz kapatılan işlem yok.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3 style="color: #00ffcc; font-size: 15px; margin-bottom: 8px;">Sistem Logları (1h)</h3>
+        <div id="logBox" class="log-box">Sistem başlatıldı (1h depolama aktif).</div>
+    </div>
+</div>
+
+<script>
+    let otomatikTimer = null;
+    let fiyatTakipTimer = null;
+    let aktifIslemler = [];
+    let kapatilanIslemler = [];
+
+    // 1h için özel localStorage anahtarları
+    try {
+        aktifIslemler = JSON.parse(localStorage.getItem('kripto_aktif_islemler_1h')) || [];
+        kapatilanIslemler = JSON.parse(localStorage.getItem('kripto_kapatilan_islemler_1h')) || [];
+    } catch(e) { aktifIslemler = []; kapatilanIslemler = []; }
+
+    function logYaz(mesaj) {
+        const box = document.getElementById("logBox");
+        box.innerText += "\n[" + new Date().toLocaleTimeString() + "] " + mesaj;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        logYaz("Arayüz yüklendi (1h).");
+        arayuzleriGuncelle();
+        fiyatTakipTimer = setInterval(canliFiyatVeSeviyeKontrolu, 10000);
+        otomatikYenilemeAyarla();
+    });
+
+    function otomatikYenilemeAyarla() {
+        if (otomatikTimer) clearInterval(otomatikTimer);
+        let dakika = parseInt(document.getElementById("intervalSelect").value);
+        if (dakika > 0) {
+            otomatikTimer = setInterval(() => { taramayiBaslat(); }, dakika * 60 * 1000);
+        }
+    }
+
+    async function enYuksekHacimliPariteleriGetir() {
+        try {
+            let res = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
+            let data = await res.json();
+            if (!Array.isArray(data)) return [];
+            return data.filter(item => item.symbol.endsWith('USDT') && !item.symbol.includes('USDC'))
+                       .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
+                       .slice(0, 25).map(item => item.symbol + '.P');
+        } catch (err) {
+            return ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P", "BNBUSDT.P", "XRPUSDT.P"];
+        }
+    }
+
+    function hesaplaRSIArray(closes, period = 14) {
+        let rsiArray = [];
+        let gains = 0, losses = 0;
+        for (let i = 1; i <= period; i++) {
+            let diff = closes[i] - closes[i - 1];
+            if (diff >= 0) gains += diff; else losses -= diff;
+        }
+        let avgGain = gains / period, avgLoss = losses / period;
+        rsiArray.push(avgLoss === 0 ? 100 : 100 - (100 / (1 + (avgGain / avgLoss))));
+
+        for (let i = period + 1; i < closes.length; i++) {
+            let diff = closes[i] - closes[i - 1];
+            if (diff >= 0) {
+                avgGain = (avgGain * (period - 1) + diff) / period;
+                avgLoss = (avgLoss * (period - 1)) / period;
+            } else {
+                avgGain = (avgGain * (period - 1)) / period;
+                avgLoss = (avgLoss * (period - 1) - diff) / period;
+            }
+            let rsi = avgLoss === 0 ? 100 : 100 - (100 / (1 + (avgGain / avgLoss)));
+            rsiArray.push(rsi);
+        }
+        return rsiArray;
+    }
+
+    function hesaplaStochRSI(closes, period = 14, kPeriod = 3, dPeriod = 3) {
+        if (closes.length < period + kPeriod + dPeriod) return { k: 50, d: 50 };
+        let rsiValues = hesaplaRSIArray(closes, period);
+        if (rsiValues.length < kPeriod) return { k: 50, d: 50 };
+
+        let stochRsiValues = [];
+        for (let i = period - 1; i < rsiValues.length; i++) {
+            let slice = rsiValues.slice(Math.max(0, i - period + 1), i + 1);
+            let highRsi = Math.max(...slice);
+            let lowRsi = Math.min(...slice);
+            let currentRsi = rsiValues[i];
+            let stoch = (highRsi - lowRsi) === 0 ? 50 : ((currentRsi - lowRsi) / (highRsi - lowRsi)) * 100;
+            stochRsiValues.push(stoch);
+        }
+
+        let kValues = [];
+        for (let i = kPeriod - 1; i < stochRsiValues.length; i++) {
+            let slice = stochRsiValues.slice(i - kPeriod + 1, i + 1);
+            let sum = slice.reduce((a, b) => a + b, 0);
+            kValues.push(sum / kPeriod);
+        }
+
+        let dValues = [];
+        for (let i = dPeriod - 1; i < kValues.length; i++) {
+            let slice = kValues.slice(i - dPeriod + 1, i + 1);
+            let sum = slice.reduce((a, b) => a + b, 0);
+            dValues.push(sum / dPeriod);
+        }
+
+        let k = kValues.length > 0 ? kValues[kValues.length - 1] : 50;
+        let d = dValues.length > 0 ? dValues[dValues.length - 1] : 50;
+
+        return { k: parseFloat(k.toFixed(2)), d: parseFloat(d.toFixed(2)) };
+    }
+
+    function hesaplaADX(klines, period = 14) {
+        if (klines.length < period * 2) return 25;
+        let highs = klines.map(k => parseFloat(k[2]));
+        let lows = klines.map(k => parseFloat(k[3]));
+        let closes = klines.map(k => parseFloat(k[4]));
+
+        let trs = [], plusDMs = [], minusDMs = [];
+        for (let i = 1; i < klines.length; i++) {
+            let high = highs[i], low = lows[i], prevHigh = highs[i - 1], prevLow = lows[i - 1], prevClose = closes[i - 1];
+            let tr = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+            trs.push(tr);
+
+            let upMove = high - prevHigh;
+            let downMove = prevLow - low;
+
+            let plusDM = (upMove > downMove && upMove > 0) ? upMove : 0;
+            let minusDM = (downMove > upMove && downMove > 0) ? downMove : 0;
+            plusDMs.push(plusDM);
+            minusDMs.push(minusDM);
+        }
+
+        let smoothTR = trs.slice(0, period).reduce((a, b) => a + b, 0);
+        let smoothPlusDM = plusDMs.slice(0, period).reduce((a, b) => a + b, 0);
+        let smoothMinusDM = minusDMs.slice(0, period).reduce((a, b) => a + b, 0);
+
+        let dxValues = [];
+        for (let i = period; i < trs.length; i++) {
+            smoothTR = smoothTR - (smoothTR / period) + trs[i];
+            smoothPlusDM = smoothPlusDM - (smoothPlusDM / period) + plusDMs[i];
+            smoothMinusDM = smoothMinusDM - (smoothMinusDM / period) + minusDMs[i];
+
+            let plusDI = smoothTR === 0 ? 0 : (smoothPlusDM / smoothTR) * 100;
+            let minusDI = smoothTR === 0 ? 0 : (smoothMinusDM / smoothTR) * 100;
+
+            let sumDI = plusDI + minusDI;
+            let dx = sumDI === 0 ? 0 : (Math.abs(plusDI - minusDI) / sumDI) * 100;
+            dxValues.push(dx);
+        }
+
+        if (dxValues.length < period) return 25;
+
+        let adx = dxValues.slice(0, period).reduce((a, b) => a + b, 0) / period;
+        for (let i = period; i < dxValues.length; i++) {
+            adx = ((adx * (period - 1)) + dxValues[i]) / period;
+        }
+
+        return parseFloat(adx.toFixed(2));
+    }
+
+    function hesaplaEMA(data, period) {
+        let k = 2 / (period + 1);
+        let emaArray = [data[0]];
+        for (let i = 1; i < data.length; i++) {
+            emaArray.push((data[i] * k) + (emaArray[i - 1] * (1 - k)));
+        }
+        return emaArray;
+    }
+
+    function safAlgoritmaAnalizi(klines) {
+        let closes = klines.map(k => parseFloat(k[4]));
+        let highs = klines.map(k => parseFloat(k[2]));
+        let lows = klines.map(k => parseFloat(k[3]));
+        let currentPrice = closes[closes.length - 1];
+
+        let adxVal = hesaplaADX(klines);
+        if (adxVal < 20) return null;
+
+        let stochRsi = hesaplaStochRSI(closes);
+        let yon = "";
+        if (stochRsi.k > stochRsi.d) {
+            yon = "LONG";
+        } else if (stochRsi.k < stochRsi.d) {
+            yon = "SHORT";
+        } else {
+            return null;
+        }
+        
+        let ema20 = hesaplaEMA(closes, 20);
+        let sonEma20 = ema20[ema20.length - 1];
+        
+        let recentHighs = highs.slice(-15);
+        let recentLows = lows.slice(-15);
+        let yakinDirenc = Math.max(...recentHighs);
+        let yakinDestek = Math.min(...recentLows);
+
+        let adxPuan = Math.min(Math.max((adxVal - 20) / 40, 0), 1) * 40;
+        let stochFark = Math.abs(stochRsi.k - stochRsi.d);
+        let stochPuan = Math.min(stochFark / 30, 1) * 30;
+
+        let trendPuan = 30;
+        if (yon === "LONG" && currentPrice < sonEma20) trendPuan = 10;
+        if (yon === "SHORT" && currentPrice > sonEma20) trendPuan = 10;
+
+        let hesaplananSkor = Math.round(adxPuan + stochPuan + trendPuan);
+        if (hesaplananSkor < 15) hesaplananSkor = 15;
+        if (hesaplananSkor > 100) hesaplananSkor = 100;
+
+        let giris = currentPrice;
+        let stop;
+
+        if (yon === "LONG") {
+            let adaylar = [sonEma20, yakinDestek].filter(val => val < giris);
+            stop = adaylar.length > 0 ? Math.max(...adaylar) : giris * 0.98;
+        } else {
+            let adaylar = [sonEma20, yakinDirenc].filter(val => val > giris);
+            stop = adaylar.length > 0 ? Math.min(...adaylar) : giris * 1.02;
+        }
+
+        return {
+            yon, skor: hesaplananSkor, adx: adxVal, stochRsi,
+            giris: parseFloat(giris.toFixed(4)),
+            stop: parseFloat(stop.toFixed(4))
+        };
+    }
+
+    function acikIslemPanoyaKopyala(yon, tarihStr, giris, stop, tp) {
+        let tpVal = tp ? tp : (yon === "LONG" ? parseFloat((giris * 1.03).toFixed(4)) : parseFloat((giris * 0.97).toFixed(4)));
+        let clipboardData = [
+            `yön : ${yon}`,
+            `tarih : ${tarihStr}`,
+            `giriş : ${giris}`,
+            `stop : ${stop}`,
+            `tp : ${tpVal}`
+        ].join("\r\n");
+
+        navigator.clipboard.writeText(clipboardData).then(() => {
+            alert(`1h İşlem bilgileri TradingView formatında kopyalandı!\n\n${clipboardData}`);
+        });
+    }
+
+    function panoyaKopyala(parite, yon, skor, giris, stop) {
+        let tf = document.getElementById("timeframeSelect").value;
+        let simdiStr = new Date().toLocaleString('tr-TR');
+        let clipboardData = [
+            `${parite} TF: ${tf} (${simdiStr})`,
+            `Skor: %${skor} -${yon}`,
+            ``,          
+            `giriş :\t${giris}`,
+            `stop :\t${stop}`
+        ].join("\r\n");
+
+        navigator.clipboard.writeText(clipboardData).then(() => {
+            alert(`${parite} bilgileri panoya kopyalandı!`);
+        });
+    }
+
+    async function taramayiBaslat() {
+        let tf = document.getElementById("timeframeSelect").value;
+        let minSkor = parseInt(document.getElementById("minScoreSelect").value);
+        let islemAcmaEşigi = parseInt(document.getElementById("execScoreSelect").value);
+        let tslOran = parseFloat(document.getElementById("tslDistanceSelect").value);
+        let partialTpAktif = document.getElementById("partialTpCheckbox").checked;
+        
+        document.getElementById("tableBody").innerHTML = `<tr><td colspan="8" style="color: #00ffcc;">Binance Futures (1h) taranıyor...</td></tr>`;
+        let aktifPariteler = await enYuksekHacimliPariteleriGetir();
+        let hamSinyaller = [];
+
+        for (let parite of aktifPariteler) {
+            try {
+                let temizParite = parite.replace('.P', '');
+                let res = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${temizParite}&interval=${tf}&limit=100`);
+                let klines = await res.json();
+                if (!Array.isArray(klines) || klines.length < 50) continue;
+
+                let sonuc = safAlgoritmaAnalizi(klines);
+                if (!sonuc) continue;
+
+                if (sonuc.skor >= minSkor) {
+                    hamSinyaller.push({ parite, ...sonuc });
+                }
+            } catch (e) {}
+        }
+
+        hamSinyaller.sort((a, b) => b.skor - a.skor);
+
+        let tabloHTML = "";
+        for (let sonuc of hamSinyaller) {
+            let badgeClass = sonuc.yon === "LONG" ? "badge-long" : "badge-short";
+            let zatenAcikMi = aktifIslemler.some(item => item.parite === sonuc.parite);
+            
+            let durumMetin = "";
+            if (zatenAcikMi) {
+                durumMetin = '<span style="color: #888;">Zaten Açık</span>';
+            } else if (sonuc.skor >= islemAcmaEşigi) {
+                durumMetin = '<span style="color: #00ffcc; font-weight:bold;">İşlemde</span>';
+            } else {
+                durumMetin = `<span style="color: #666; font-size: 11px;">Sadece Liste</span>`;
+            }
+
+            tabloHTML += `<tr>
+                <td><span class="parite-link" onclick="panoyaKopyala('${sonuc.parite}', '${sonuc.yon}', ${sonuc.skor},${sonuc.giris}, ${sonuc.stop})">${sonuc.parite}</span></td>
+                <td><span class="${badgeClass}">${sonuc.yon}</span></td>
+                <td style="color: #00ffcc; font-weight: bold;">%${sonuc.skor}</td>
+                <td style="color: #ffaa00;">${sonuc.adx}</td>
+                <td style="color: #00ffcc;">K:${sonuc.stochRsi.k} D:${sonuc.stochRsi.d}</td>
+                <td>${sonuc.giris}</td>
+                <td style="color: #ff4444;">${sonuc.stop}</td>
+                <td>${durumMetin}</td>
+            </tr>`;
+
+            if (!zatenAcikMi && sonuc.skor >= islemAcmaEşigi) {
+                let d = new Date();
+                let acilisZamaniStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+                
+                let tpFiyat = null;
+                if (partialTpAktif) {
+                    tpFiyat = sonuc.yon === "LONG" ? parseFloat((sonuc.giris * 1.03).toFixed(4)) : parseFloat((sonuc.giris * 0.97).toFixed(4));
+                }
+
+                aktifIslemler.push({
+                    id: Date.now() + Math.random(),
+                    parite: sonuc.parite,
+                    tf: tf,
+                    yon: sonuc.yon,
+                    giris: sonuc.giris,
+                    stop: sonuc.stop,
+                    tp: tpFiyat,
+                    tpYapildi: false,
+                    enYuksekFiyat: sonuc.giris,
+                    tslYuzde: tslOran,
+                    acilisZamaniMs: Date.now(),
+                    zaman: acilisZamaniStr
+                });
+            }
+        }
+
+        document.getElementById("tableBody").innerHTML = tabloHTML || `<tr><td colspan="8" style="color: #ffaa00;">Sinyal bulunamadı.</td></tr>`;
+        document.getElementById("sonGuncelleme").innerText = `Son Güncelleme: ${new Date().toLocaleString('tr-TR')}`;
+        localStorage.setItem('kripto_aktif_islemler_1h', JSON.stringify(aktifIslemler));
+        arayuzleriGuncelle();
+    }
+
+    async function canliFiyatVeSeviyeKontrolu() {
+        if (aktifIslemler.length === 0) return;
+        try {
+            let res = await fetch('https://fapi.binance.com/fapi/v1/ticker/price');
+            let fiyatlar = await res.json();
+            let fiyatMap = {};
+            fiyatlar.forEach(f => { fiyatMap[f.symbol + '.P'] = parseFloat(f.price); });
+
+            let kapatilacaklar = [];
+
+            aktifIslemler.forEach(islem => {
+                let guncel = fiyatMap[islem.parite];
+                if (!guncel) return;
+                islem.anlikFiyat = guncel;
+
+                let pnlYuzde = islem.yon === "LONG" ? ((guncel - islem.giris) / islem.giris) * 100 : ((islem.giris - guncel) / islem.giris) * 100;
+                islem.pnlYuzde = parseFloat(pnlYuzde.toFixed(2));
+
+                if (islem.tp && !islem.tpYapildi) {
+                    if ((islem.yon === "LONG" && guncel >= islem.tp) || (islem.yon === "SHORT" && guncel <= islem.tp)) {
+                        islem.tpYapildi = true;
+                        kapatilanIslemler.unshift({
+                            parite: islem.parite, yon: islem.yon, giris: islem.giris, cikis: islem.tp,
+                            sonuc: 'PARTIAL TP (%50)', pnlYuzde: 2.90,
+                            gecenSure: sureFormatla(Date.now() - islem.acilisZamaniMs),
+                            acilisZamani: islem.zaman, kapanisZamani: new Date().toLocaleString('tr-TR')
+                        });
+                    }
+                }
+
+                if (islem.yon === "LONG") {
+                    if (guncel > islem.enYuksekFiyat) {
+                        islem.enYuksekFiyat = guncel;
+                        let yeniStop = islem.enYuksekFiyat * (1 - (islem.tslYuzde / 100));
+                        if (yeniStop > islem.stop) islem.stop = parseFloat(yeniStop.toFixed(4));
+                    }
+                    if (guncel <= islem.stop) kapatilacaklar.push({ islem, sonuc: 'TSL', fiyat: islem.stop });
+                } else {
+                    if (guncel < islem.enYuksekFiyat) {
+                        islem.enYuksekFiyat = guncel;
+                        let yeniStop = islem.enYuksekFiyat * (1 + (islem.tslYuzde / 100));
+                        if (yeniStop < islem.stop) islem.stop = parseFloat(yeniStop.toFixed(4));
+                    }
+                    if (guncel >= islem.stop) kapatilacaklar.push({ islem, sonuc: 'TSL', fiyat: islem.stop });
+                }
+            });
+
+            kapatilacaklar.forEach(k => islemKapat(k.islem.id, k.sonuc, k.fiyat));
+            localStorage.setItem('kripto_aktif_islemler_1h', JSON.stringify(aktifIslemler));
+            localStorage.setItem('kripto_kapatilan_islemler_1h', JSON.stringify(kapatilanIslemler));
+            arayuzleriGuncelle();
+        } catch (e) {}
+    }
+
+    function sureFormatla(ms) {
+        let saniye = Math.floor(ms / 1000);
+        let saat = Math.floor(saniye / 3600);
+        saniye %= 3600;
+        let dakika = Math.floor(saniye / 60);
+        saniye %= 60;
+        return (saat > 0 ? saat + "s " : "") + (dakika > 0 || saat > 0 ? dakika + "d " : "") + saniye + "sn";
+    }
+
+    function islemKapat(id, sonucTipi, cikisFiyati) {
+        let index = aktifIslemler.findIndex(i => i.id === id);
+        if (index === -1) return;
+        let islem = aktifIslemler.splice(index, 1)[0];
+        let hamPnl = islem.yon === "LONG" ? ((cikisFiyati - islem.giris) / islem.giris) * 100 : ((islem.giris - cikisFiyati) / islem.giris) * 100;
+        let netPnlYuzde = hamPnl - 0.10;
+
+        kapatilanIslemler.unshift({
+            parite: islem.parite, yon: islem.yon, giris: islem.giris, cikis: cikisFiyati,
+            sonuc: sonucTipi, pnlYuzde: parseFloat(netPnlYuzde.toFixed(2)),
+            gecenSure: sureFormatla(Date.now() - islem.acilisZamaniMs),
+            acilisZamani: islem.zaman, kapanisZamani: new Date().toLocaleString('tr-TR')
+        });
+
+        localStorage.setItem('kripto_aktif_islemler_1h', JSON.stringify(aktifIslemler));
+        localStorage.setItem('kripto_kapatilan_islemler_1h', JSON.stringify(kapatilanIslemler));
+    }
+
+    function manuelKapat(id) {
+        let islem = aktifIslemler.find(i => i.id === id);
+        if (islem) islemKapat(id, 'MANUEL', islem.anlikFiyat || islem.giris);
+        arayuzleriGuncelle();
+    }
+
+    function tumIslemleriSifirla() {
+        if (confirm("1h Tüm işlemler sıfırlansın mı?")) {
+            aktifIslemler = []; kapatilanIslemler = [];
+            localStorage.removeItem('kripto_aktif_islemler_1h');
+            localStorage.removeItem('kripto_kapatilan_islemler_1h');
+            arayuzleriGuncelle();
+        }
+    }
+
+    function arayuzleriGuncelle() {
+        let aktifHTML = "";
+        let toplamAktifPnl = 0;
+
+        if (aktifIslemler.length === 0) {
+            aktifHTML = `<tr><td colspan="9" style="color: #888;">Açık işlem yok.</td></tr>`;
+        } else {
+            aktifIslemler.forEach(item => {
+                let pnlVal = item.pnlYuzde || 0;
+                toplamAktifPnl += pnlVal;
+                let pnlRenk = pnlVal >= 0 ? "color: #00ff00;" : "color: #ff4444;";
+                let tpMetin = item.tp ? `<span style="color: #00ffcc;">${item.tp}</span>` : '<span style="color: #666;">Yok</span>';
+                if(item.tpYapildi) tpMetin += ' <span style="font-size:10px; color:#ffaa00;">(TP Alındı)</span>';
+
+                aktifHTML += `<tr>
+                    <td><span class="parite-link" onclick="acikIslemPanoyaKopyala('${item.yon}', '${item.zaman}', ${item.giris}, ${item.stop}, ${item.tp || 'null'})">${item.parite}</span></td>
+                    <td><span class="${item.yon === "LONG" ? "badge-long" : "badge-short"}">${item.yon}</span></td>
+                    <td><div>${item.giris}</div><div style="font-size: 11px; color: #888;">${item.zaman}</div></td>
+                    <td style="color: #fff; font-weight: bold;">${item.anlikFiyat || '-'}</td>
+                    <td>${tpMetin}</td>
+                    <td style="color: #ff4444;">${item.stop}</td>
+                    <td style="${pnlRenk} font-weight: bold;">\%${pnlVal.toFixed(2)}</td>
+                    <td><span class="badge-durum-aktif">TSL AKTİF</span></td>
+                    <td><button onclick="manuelKapat(${item.id})" class="btn-Danger-Small">Kapat</button></td>
+                </tr>`;
+            });
+        }
+        document.getElementById("activeTradesBody").innerHTML = aktifHTML;
+
+        let toplamPnlStr = (toplamAktifPnl >= 0 ? "+" : "") + toplamAktifPnl.toFixed(2) + "%";
+        document.getElementById("thAnlikPnl").innerHTML = `Anlık PnL % <span style="color: ${toplamAktifPnl >= 0 ? '#00ff00' : '#ff4444'};">(Toplam: ${toplamPnlStr})</span>`;
+
+        let kapatilanHTML = "";
+        if (kapatilanIslemler.length === 0) {
+            kapatilanHTML = `<tr><td colspan="9" style="color: #888;">Kapatılan işlem yok.</td></tr>`;
+        } else {
+            kapatilanIslemler.forEach(item => {
+                let pnlRenk = item.pnlYuzde >= 0 ? "color: #00ff00;" : "color: #ff4444;";
+                let sonucBadge = item.sonuc === "TSL" ? '<span class="badge-durum-tsl">TSL HIT</span>' : (item.sonuc.includes("PARTIAL") ? '<span class="badge-durum-tp">PARTIAL TP</span>' : '<span style="color:#aaa">MANUEL</span>');
+                kapatilanHTML += `<tr>
+                    <td><b>${item.parite}</b></td>
+                    <td><span class="${item.yon === "LONG" ? "badge-long" : "badge-short"}">${item.yon}</span></td>
+                    <td>${item.giris}</td><td>${item.cikis}</td><td>${sonucBadge}</td>
+                    <td style="${pnlRenk} font-weight: bold;">\%${item.pnlYuzde}</td>
+                    <td style="color: #00ffcc; font-size: 12px;">${item.gecenSure}</td>
+                    <td style="color: #888; font-size: 11px;">${item.acilisZamani}</td>
+                    <td style="color: #888; font-size: 11px;">${item.kapanisZamani}</td>
+                </tr>`;
+            });
+        }
+        document.getElementById("closedTradesBody").innerHTML = kapatilanHTML;
+
+        let toplamPnl = kapatilanIslemler.reduce((acc, curr) => acc + curr.pnlYuzde, 0);
+        let basarili = kapatilanIslemler.filter(i => i.pnlYuzde > 0).length;
+        let winRate = kapatilanIslemler.length > 0 ? Math.round((basarili / kapatilanIslemler.length) * 100) : 0;
+
+        document.getElementById("statAcikSayisi").innerText = aktifIslemler.length;
+        document.getElementById("statKapatilanSayisi").innerText = kapatilanIslemler.length;
+        document.getElementById("statToplamPnl").innerText = (toplamPnl >= 0 ? "+" : "") + toplamPnl.toFixed(2) + "%";
+        document.getElementById("statWinRate").innerText = "%" + winRate;
+    }
+</script>
+
+</body>
+</html>
