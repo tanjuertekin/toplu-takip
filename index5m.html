@@ -846,6 +846,32 @@
         document.getElementById("statWinRate").innerText = "%" + winRate;
     }
 </script>
+// Google E-Tabloya anlık veri gönderen fonksiyon (Örnek: index5m.html için bot: "5m" yapılır)
+function tabloyaGonder() {
+    try {
+        let acik = document.getElementById('statAcikSayisi') ? document.getElementById('statAcikSayisi').innerText : (document.getElementById('statAcikSayi') ? document.getElementById('statAcikSayi').innerText : 0);
+        let kapatilan = document.getElementById('statKapatilanSayisi') ? document.getElementById('statKapatilanSayisi').innerText : (document.getElementById('statKapatilanSayi') ? document.getElementById('statKapatilanSayi').innerText : 0);
+        let pnl = document.getElementById('statToplamPnl') ? document.getElementById('statToplamPnl').innerText : "%0.00";
+        let winRate = document.getElementById('statWinRate') ? document.getElementById('statWinRate').innerText : "%0";
 
+        let veri = {
+            bot: "5m", // <-- Bu kısmı her dosyaya göre değiştirin ("ema9", "5m", "15m", "1h", "4h")
+            acik: acik,
+            kapatilan: kapatilan,
+            pnl: pnl,
+            winRate: winRate
+        };
+
+        fetch("https://script.google.com/macros/s/AKfycbyVvJNyYFylN-KidWqXYgBQAPSU0_Y8qwyyedQEC383P7DRJg-p0h_U_NDvq0UuE4ax/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(veri)
+        });
+    } catch (e) {}
+}
+
+// Her 10 saniyede bir tablonu otomatik günceller
+setInterval(tabloyaGonder, 10000);
 </body>
 </html>
